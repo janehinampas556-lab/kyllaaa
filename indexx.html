@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Monthsary, My Love - Final Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Dancing+Script:wght*400..700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#E91E63', // Soft Pink/Rose
+                        'secondary': '#F48FB1', // Lighter Pink
+                        'background': '#FFF8F8', // Off-White/Blush
+                        'text-dark': '#3F2C2C', // Dark Brown/Maroon
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        handwriting: ['"Dancing Script"', 'cursive'],
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        heartBeat: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.1)' }
+                        },
+                    },
+                    animation: {
+                        fadeIn: 'fadeIn 0.5s ease-out forwards',
+                        heartBeat: 'heartBeat 1.5s infinite ease-in-out',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for aesthetics */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFF8F8;
+            color: #3F2C2C;
+            height: 100vh;
+            overflow: hidden; 
+        }
+
+        /* --- Slide 2: Flip Card Styles --- */
+        .flip-card {
+            background-color: transparent;
+            width: 300px;
+            height: 400px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; 
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .flip-card-front {
+            background-color: var(--primary); 
+            color: white;
+        }
+
+        .flip-card-back {
+            background-color: white;
+            color: var(--text-dark); 
+            transform: rotateY(180deg);
+            border: 4px solid var(--secondary);
+        }
+
+        /* --- Slide 3: Photo Grid/Poem Toggle Styles --- */
+        #poem-display-area {
+            min-height: 80px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        /* --- Slide 4: Fireworks Canvas Style --- */
+        #fireworks-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; 
+        }
+        /* Ensure all overlaid content is above the canvas (z-index 0) */
+        #slide-final > div, #slide-final > a {
+            z-index: 1; 
+            position: relative;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center">
+
+    <audio id="background-music" src="www.cabinet-avocat-cadet.fr - Can t Help Falling In Love With You - Daniel Padilla (Music Video) (320 KBps) (1).mp3" loop></audio>
+
+    <div id="app" class="relative w-full h-full p-8 md:p-16 flex items-center justify-center">
+
+        <div id="slide-intro" class="slide text-center animate-fadeIn">
+            <h1 class="text-6xl md:text-8xl font-handwriting text-primary mb-8" style="font-family: 'Dancing Script', cursive;">Happy Monthsary!</h1>
+            <p class="text-xl md:text-2xl text-text-dark mb-12">I made something special just for you.</p>
+
+            <div class="flex space-x-4 justify-center">
+                <img src="553060501_32525969077050730_7350752542414290483_n (1).jpg" class="w-32 h-32 md:w-40 md:h-40 rounded-xl shadow-lg rotate-3 transition duration-300 hover:scale-105 object-cover" onerror="this.src='https://placehold.co/150x150/F48FB1/FFFFFF?text=Photo+1'">
+                <img src="574496339_1309436510863467_4464076440328304592_n (1).jpg" class="w-32 h-32 md:w-40 md:h-40 rounded-xl shadow-lg -rotate-6 transition duration-300 hover:scale-105 object-cover" onerror="this.src='https://placehold.co/150x150/E91E63/FFFFFF?text=Photo+2'">
+            </div>
+
+            <button onclick="playMusicAndNextSlide()" class="mt-16 px-8 py-3 bg-primary text-white text-lg rounded-full shadow-lg transition duration-300 hover:bg-secondary hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-primary focus:ring-opacity-50">
+                Start our journey
+            </button>
+        </div>
+
+        <div id="slide-flipcard" class="slide text-center animate-fadeIn hidden">
+            <h2 class="text-4xl font-handwriting text-primary mb-8" style="font-family: 'Dancing Script', cursive;">Turn the Page to Read My Heart</h2>
+            <p class="text-lg text-text-dark mb-8">Click the card to reveal the message!</p>
+
+            <div id="love-card" class="flip-card mx-auto" onclick="flipCard()">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <svg class="w-20 h-20 text-white animate-heartBeat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path fill="currentColor" d="M462.3 62.6C407.5 15.9 328 17.5 275.2 67.8L256 86.4 236.8 67.8C184 17.5 104.5 15.9 49.7 62.6c-49.8 46.2-51.5 118.8-49.7 169.5-1.7 50.7 14.5 110.1 76.7 186.8 55.6 68.4 145.4 125.7 210.8 154.5 65.4-28.8 155.2-86.1 210.8-154.5 62.2-76.7 78.4-136.1 76.7-186.8 1.8-50.7-.1-123.3-49.8-169.5z"/>
+                        </svg>
+                        <h3 class="text-2xl font-handwriting mt-4">A Gift from the Heart</h3>
+                        <p class="text-sm mt-2 opacity-80">Click Me!</p>
+                    </div>
+                    <div class="flip-card-back text-left overflow-y-auto">
+                        <h3 class="text-2xl font-handwriting text-primary mb-3 text-center">To My Dearest Love</h3>
+                        <p id="typed-message" class="text-sm text-text-dark whitespace-pre-wrap text-center min-h-[150px]"></p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="flipcard-next-btn" onclick="nextSlide()" class="mt-12 px-6 py-2 bg-primary text-white text-md rounded-full shadow-lg transition duration-300 hover:bg-secondary opacity-50 pointer-events-none">
+                Continue to the next surprise
+            </button>
+        </div>
+
+        <div id="slide-clothesline" class="slide text-center animate-fadeIn hidden w-full max-w-4xl">
+            <h2 class="text-4xl font-handwriting text-primary mb-8" style="font-family: 'Dancing Script', cursive;">Our Cherished Memories</h2>
+            <p class="text-lg text-text-dark mb-8">Click each photo to reveal the secret message held within that moment.</p>
+            
+            <div id="photo-area-wrapper" class="mb-8 flex justify-center w-full">
+                <div id="photo-area">
+                    </div>
+            </div>
+
+            <div class="mt-4">
+                <div id="poem-display-area" class="h-16 text-center text-text-dark transition duration-500 ease-in-out opacity-0">
+                    <p class="text-lg italic font-handwriting text-primary">Click any photo above to start...</p>
+                </div>
+            </div>
+
+            <button id="memory-next-btn" onclick="nextSlide()" class="mt-8 px-6 py-2 bg-primary text-white text-md rounded-full shadow-lg transition duration-300 hover:bg-secondary opacity-50 pointer-events-none">
+                Continue
+            </button>
+        </div>
+
+        <div id="slide-final" class="slide text-center animate-fadeIn hidden relative w-full h-full">
+            <canvas id="fireworks-canvas"></canvas>
+            
+            <div class="p-8 bg-secondary/20 rounded-3xl shadow-2xl relative" style="z-index: 1;">
+                <p class="text-4xl md:text-6xl font-extrabold text-text-dark uppercase tracking-widest leading-tight">
+                    YOU ARE THE BEST THING
+                </p>
+                <p class="text-4xl md:text-6xl font-extrabold text-primary uppercase tracking-widest leading-tight">
+                    THAT'S EVER BEEN MINE
+                </p>
+            </div>
+            
+            <a href="#" id="final-message-button" onclick="nextSlide(); return false;" class="mt-12 inline-block px-6 py-2 bg-primary text-white text-md rounded-full shadow-lg transition duration-300 hover:bg-secondary relative" style="z-index: 1;">
+                Happy Monthsary, Love!
+            </a>
+        </div>
+        
+        <div id="slide-bunny-page" class="slide text-center animate-fadeIn hidden w-full h-full flex flex-col justify-center items-center">
+            <h2 class="text-5xl md:text-7xl font-handwriting text-primary mb-8 animate-fadeIn" style="font-family: 'Dancing Script', cursive; animation-delay: 0.5s;">For you, my love.</h2>
+            
+            <img src="Kongyeli Cute Drawing.jpg" 
+                 class="w-64 h-auto md:w-80 rounded-xl shadow-2xl rotate-3 transition duration-500 animate-fadeIn"
+                 style="animation-delay: 1s;"
+                 onerror="this.src='https://placehold.co/320x320/F48FB1/FFFFFF?text=Bunny+Image'">
+            
+            <p class="text-xl md:text-3xl text-text-dark mt-10 font-bold animate-fadeIn" style="animation-delay: 1.5s;">
+                —Bulaklak na dilaw, Dahil ikaw lamang… at wala nang iba pa sa bawat araw.🌻
+            </p>
+        </div>
+    </div>
+
+</body>
+<script type="module">
+    // --- Global State and Utility Functions ---
+    let currentSlide = 1;
+    const totalSlides = 5; 
+    const POEM_DISPLAY_TIMEOUT = 500; 
+    
+    // Tracks which photos have been clicked to enable the next button
+    let clickedPhotos = new Set();
+    
+    // Message for the typewriter effect
+    const MESSAGE = "Every single day, you are the most precious gift. I'm thankful for the quiet moments, the big laughs, and the simple fact that I get to love you. This journey has been the best adventure, and I can't wait for all the months and years to come.\n\nMy heart will always be completely yours. Happy Monthsary!";
+
+    // List of photos and their corresponding short poems/messages
+    const photoData = [
+        { url: '553060501_32525969077050730_7350752542414290483_n (1).jpg', poem: "A simple glance, a gentle start, you captured me, you own my heart." },
+        { url: '574496339_1309436510863467_4464076440328304592_n (1).jpg', poem: "In every smile, a memory bright, you fill my world with pure delight." },
+        { url: '575243074_3035361700005667_5667865586159123465_n (1).jpg', poem: "My dearest joy, my truest friend, a love like ours will never end." },
+        { url: '566645204_2027237604704346_441032355698809331_n (1).jpg', poem: "Though seasons change and years may fly, forever grateful, standing by." },
+        { url: '575365260_2265782327254108_154031059538207342_n (1).jpg', poem: "This is our story, sweet and true, forever loving, always you." }
+    ];
+
+    function random(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    // Function to handle music playback and slide transition
+    function playMusicAndNextSlide() {
+        const music = document.getElementById('background-music');
+        if (music) {
+            music.volume = 0.5; 
+            music.play().catch(error => {
+                console.log("Autoplay failed, but we tried!");
+            });
+        }
+        nextSlide();
+    }
+    window.playMusicAndNextSlide = playMusicAndNextSlide;
+
+
+    // --- Core Navigation Logic ---
+    function showSlide(index) {
+        document.querySelectorAll('.slide').forEach(slide => {
+            slide.classList.add('hidden');
+            slide.classList.remove('animate-fadeIn');
+        });
+
+        const slideMap = {
+            1: 'intro',
+            2: 'flipcard', 
+            3: 'clothesline', 
+            4: 'final',
+            5: 'bunny-page' 
+        };
+        
+        const nextSlideId = slideMap[index];
+        const nextSlideElement = document.getElementById(`slide-${nextSlideId}`);
+
+        if (nextSlideElement) {
+            nextSlideElement.classList.remove('hidden');
+            nextSlideElement.classList.add('animate-fadeIn');
+
+            // Initialization for specific slides
+            if (index === 2) {
+                initFlipCard();
+            } else if (index === 3) {
+                initMemoryShuffle(); 
+            } else if (index === 4) {
+                initFinalSlide(); // Starts fireworks
+            }
+        }
+    }
+
+    function nextSlide() {
+        if (currentSlide === 4) { // When moving FROM the fireworks slide (4)
+            stopFireworks();
+        }
+
+        if (currentSlide < totalSlides) {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+    }
+    window.nextSlide = nextSlide;
+
+
+    // --- Slide 2: Flip Card Logic (NEW Typewriter Integration) ---
+    function initFlipCard() {
+        const card = document.getElementById('love-card');
+        card.classList.remove('flipped');
+        document.getElementById('flipcard-next-btn').classList.add('opacity-50', 'pointer-events-none');
+        document.getElementById('typed-message').textContent = ''; // Clear message for re-flip
+    }
+
+    function flipCard() {
+        const card = document.getElementById('love-card');
+        if (!card.classList.contains('flipped')) {
+            card.classList.add('flipped');
+            // Start typing after the flip transition
+            setTimeout(typeMessage, 800); 
+        }
+    }
+    window.flipCard = flipCard;
+
+    function typeMessage(i = 0) {
+        const messageElement = document.getElementById('typed-message');
+        if (i < MESSAGE.length) {
+            // Use innerHTML to handle line breaks (\n) if they exist
+            if (MESSAGE.charAt(i) === '\n') {
+                messageElement.innerHTML += '<br>';
+            } else {
+                messageElement.innerHTML += MESSAGE.charAt(i);
+            }
+            
+            // Adjust speed for punctuation and line breaks
+            let speed = (MESSAGE.charAt(i) === '.' || MESSAGE.charAt(i) === '!' || MESSAGE.charAt(i) === '?') ? 100 : 40;
+            
+            setTimeout(() => typeMessage(i + 1), speed);
+        } else {
+            // Typing complete, enable the next button
+            document.getElementById('flipcard-next-btn').classList.remove('opacity-50', 'pointer-events-none');
+        }
+    }
+    window.typeMessage = typeMessage; // Expose globally for testing/re-use
+
+
+    // --- Slide 3: Memory Grid Reveal Logic (Click-to-Toggle Poem) ---
+    function initMemoryShuffle() {
+        const photoArea = document.getElementById('photo-area');
+        photoArea.innerHTML = ''; 
+        clickedPhotos.clear(); 
+        
+        // 1. Set up the Flexbox container for vertical stacking of rows
+        photoArea.classList.add('flex', 'flex-col', 'items-center', 'max-w-md');
+
+        // 2. Create two containers (rows) for the 3-over-2 layout
+        const row1 = document.createElement('div');
+        row1.className = 'flex justify-center gap-4 w-full mb-4'; // Top row: 3 items, centered
+
+        const row2 = document.createElement('div');
+        row2.className = 'flex justify-center gap-4 w-full'; // Bottom row: 2 items, centered
+
+        // 3. Create and append the photos
+        photoData.forEach((data, index) => {
+            // Photos are now wrapped in a div to ensure the Flexbox row layout works well
+            const wrapper = document.createElement('div'); 
+            
+            const photo = document.createElement('img');
+            photo.src = data.url;
+            photo.dataset.index = index; 
+            // W-28 h-28 for uniform size (112px), better hover effect
+            photo.className = 'photo-element rounded-md object-cover w-28 h-28 shadow-lg cursor-pointer transition duration-300 hover:scale-105 transform hover:rotate-1'; 
+            photo.onclick = () => displayPoem(index); // Attach click handler
+            
+            wrapper.appendChild(photo);
+
+            if (index < 3) {
+                row1.appendChild(wrapper);
+            } else {
+                row2.appendChild(wrapper);
+            }
+        });
+
+        // 4. Append the rows to the photo area
+        photoArea.appendChild(row1);
+        photoArea.appendChild(row2);
+
+        // Initialize Poem Display Area state
+        const poemArea = document.getElementById('poem-display-area');
+        // Initial state: visible prompt
+        poemArea.innerHTML = `<p class="text-lg italic font-handwriting text-primary">Click any photo above to start...</p>`;
+        poemArea.classList.add('opacity-100'); 
+        
+        // Disable next button on start
+        document.getElementById('memory-next-btn').classList.add('opacity-50', 'pointer-events-none');
+    }
+    window.initMemoryShuffle = initMemoryShuffle; 
+
+    function displayPoem(index) {
+        const poemArea = document.getElementById('poem-display-area');
+        const data = photoData[index];
+        
+        // 1. Mark photo as clicked and check progress
+        clickedPhotos.add(index);
+        if (clickedPhotos.size === photoData.length) {
+            document.getElementById('memory-next-btn').classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        // 2. Start fade out of current poem (removes opacity-100)
+        poemArea.classList.remove('opacity-100');
+        
+        // 3. Wait for fade out to complete (500ms), then change content and fade in
+        setTimeout(() => {
+            // Update content
+            const poemHTML = `<span class="font-handwriting text-primary text-2xl">“</span>
+                               <span class="text-text-dark text-lg">${data.poem}</span>
+                               <span class="font-handwriting text-primary text-2xl">”</span>`;
+            poemArea.innerHTML = poemHTML;
+            
+            // 4. Fade in (adds opacity-100)
+            poemArea.classList.add('opacity-100');
+        }, POEM_DISPLAY_TIMEOUT);
+    }
+    window.displayPoem = displayPoem;
+
+    // --- Slide 4: Final Slide Initialization (starts fireworks) ---
+    function initFinalSlide() {
+        startFireworks();
+    }
+    window.initFinalSlide = initFinalSlide;
+
+
+    // --- FIREWORKS LOGIC ---
+    const particles = [];
+    const MAX_PARTICLES = 200;
+    const FIREWORK_COUNT = 10;
+    let canvas, ctx, width, height;
+    let animationFrameId;
+
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.vx = random(-2, 2);
+            this.vy = random(-10, -5);
+            this.friction = 0.98;
+            this.gravity = 0.3;
+            this.alpha = 1;
+            this.decay = random(0.015, 0.03);
+            this.color = color;
+            this.radius = random(1, 3);
+            this.trail = [];
+            this.trailCount = 5;
+        }
+
+        update() {
+            this.trail.unshift({ x: this.x, y: this.y, alpha: this.alpha });
+            if (this.trail.length > this.trailCount) {
+                this.trail.pop();
+            }
+
+            this.vx *= this.friction;
+            this.vy += this.gravity;
+            this.x += this.vx;
+            this.y += this.vy;
+            this.alpha -= this.decay;
+        }
+
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            for (let i = 0; i < this.trail.length; i++) {
+                const trailParticle = this.trail[i];
+                const trailAlpha = this.alpha * (this.trail.length - i) / this.trail.length;
+                ctx.fillStyle = `rgba(${this.color.match(/\d+/g).join(',')}, ${trailAlpha})`;
+                ctx.beginPath();
+                ctx.arc(trailParticle.x, trailParticle.y, this.radius * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+
+    class Firework {
+        constructor() {
+            this.x = random(0, width);
+            this.y = height;
+            this.targetY = random(height / 6, height / 3);
+            this.color = `rgb(${random(100, 255)}, ${random(100, 255)}, ${random(100, 255)})`;
+            this.speed = random(2, 4);
+            this.exploded = false;
+        }
+
+        update() {
+            if (!this.exploded) {
+                this.y -= this.speed;
+                if (this.y <= this.targetY) {
+                    this.explode();
+                    this.exploded = true;
+                }
+            }
+        }
+
+        draw() {
+            if (!this.exploded) {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        explode() {
+            for (let i = 0; i < MAX_PARTICLES; i++) {
+                const particle = new Particle(this.x, this.y, this.color);
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 10 + 2; 
+                
+                particle.vx = Math.cos(angle) * velocity;
+                particle.vy = Math.sin(angle) * velocity;
+                
+                particles.push(particle);
+            }
+        }
+    }
+    let fireworks = [];
+    let fireworkTimer = 0;
+    const FIREWORK_DELAY = 60; 
+
+    function loop() {
+        animationFrameId = requestAnimationFrame(loop);
+        ctx.fillStyle = 'rgba(255, 248, 248, 0.2)';
+        ctx.fillRect(0, 0, width, height);
+
+        fireworks.forEach((f, index) => {
+            f.update();
+            f.draw();
+            if (f.exploded && particles.length === 0) {
+                fireworks.splice(index, 1);
+            }
+        });
+        particles.forEach((p, index) => {
+            p.update();
+            p.draw();
+            if (p.alpha <= p.decay || p.y > height) {
+                particles.splice(index, 1);
+            }
+        });
+
+        fireworkTimer++;
+        if (fireworkTimer >= FIREWORK_DELAY && fireworks.length < FIREWORK_COUNT) {
+            fireworks.push(new Firework());
+            fireworkTimer = 0;
+        }
+    }
+
+    function startFireworks() {
+        canvas = document.getElementById('fireworks-canvas');
+        ctx = canvas.getContext('2d');
+        width = canvas.width = canvas.offsetWidth;
+        height = canvas.height = canvas.offsetHeight;
+        particles.length = 0;
+        fireworks.length = 0;
+        fireworkTimer = 0;
+        if (animationFrameId) { cancelAnimationFrame(animationFrameId); }
+        loop();
+        window.addEventListener('resize', resizeCanvas);
+    }
+
+    function stopFireworks() {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        window.removeEventListener('resize', resizeCanvas);
+        if (ctx) { ctx.clearRect(0, 0, width, height); }
+    }
+
+    function resizeCanvas() {
+        width = canvas.width = canvas.offsetWidth;
+        height = canvas.height = canvas.offsetHeight;
+    }
+
+
+    // --- Initialization on Load ---
+    document.addEventListener('DOMContentLoaded', () => {
+        showSlide(currentSlide);
+    });
+</script>
+</html> 
